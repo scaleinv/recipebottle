@@ -499,10 +499,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_the_unmet_need">1. The Unmet Need</a></li>
+<li><a href="#_the_gateway_complication">1. The Gateway Complication</a></li>
 <li><a href="#_the_rbm_system_vision">2. The RBM System Vision</a>
 <ul class="sectlevel2">
-<li><a href="#_part_one_image_lifecycle_support">2.1. Part One: Image Lifecycle Support</a></li>
+<li><a href="#_part_one_image_management">2.1. Part One: Image Management</a></li>
 <li><a href="#_part_two_bottle_service_orchestration">2.2. Part Two: Bottle Service Orchestration</a></li>
 </ul>
 </li>
@@ -512,7 +512,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_the_unmet_need">1. The Unmet Need</h2>
+<h2 id="_the_gateway_complication">1. The <a href="#term_complication">Gateway Complication</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>I write this as I prepare to make a key feature request from the <code>podman</code> community BEFORE releasing the first version of the
@@ -549,6 +549,11 @@ Maybe the vision of <code>podman</code> is compatibile with my needs as a small 
 <h2 id="_the_rbm_system_vision">2. The <a href="#term_rbm_system">RBM System</a> Vision</h2>
 <div class="sectionbody">
 <div class="paragraph">
+<div class="imageblock">
+<div class="content">
+<img src="rbm-abstract-drawio.svg" alt="RBM System Architecture Diagram">
+</div>
+</div>    
 <p>Maintaining build and service environments is a real headache for the small development organization.
 <a href="#term_container">Containers</a>
 are an amazing tool for controlling package version constellations.
@@ -577,22 +582,46 @@ itself is largely a set of Makefiles and bash scripts designed to be easily inco
 This is purely an open-source undertaking.</p>
 </div>
 <div class="sect2">
-<h3 id="_part_one_image_lifecycle_support">2.1. Part One: <a href="#term_image">Image</a> Lifecycle Support</h3>
+<h3 id="_part_one_image_management">2.1. Part One: <a href="#term_image">Image</a> Management</h3>
 <div class="paragraph">
-<p><a href="#term_rbm_system">RBM System</a>
-interfaces tightly with github&#8217;s Actions and
-<a href="#term_container_registry">Container Registry</a>
-in order to provide a simplified offsite means of constructing, auditing, and maintaining
-<a href="#term_container">Container</a> <a href="#term_image">Images</a>.
-Emplacing an appropriate personal access token enables the makefile rules that use <code>curl</code> to trigger a
-<a href="#term_build_workflow">Build Workflow</a>
-operating at github to construct a specified image in an extremely clean environment, form a 'software bill of materials', and place it into long term residence for the
+<p>The
+<a href="#term_rbm_system">RBM System</a>
+streamlines
+<a href="#term_container">Container</a> <a href="#term_image">Image</a>
+creation and maintenance through GitHub Actions and the
+<a href="#term_container_registry">Container Registry</a>.
+With a configured personal access token, the
+<a href="#term_build_service">Build Service</a>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Constructs
+<a href="#term_image">Image</a>
+in clean, isolated environments</p>
+</li>
+<li>
+<p>Generates software bills of materials for compliance</p>
+</li>
+<li>
+<p>Maintains build transcripts and commit references in the user&#8217;s git repository</p>
+</li>
+<li>
+<p>Stores validated
+<a href="#term_image">Images</a>
+in the
 <a href="#term_user">User&#8217;s</a>
-organization while retaining records in the
-<a href="#term_user">User&#8217;s</a>
-own git repo.
-In short, this provides offsite backup of a
-<a href="#term_container">Container</a> <a href="#term_image">Image</a>.</p>
+<a href="#term_container_registry">Container Registry</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This approach ensures reproducible builds while minimizing dependencies on local resources and their configurations.
+The system uses only <code>curl</code>, <code>jq</code>, and makefiles to orchestrate remote
+<a href="#term_image">Image</a>
+construction, enabling small teams to maintain enterprise-grade
+<a href="#term_image">Image</a>
+management practices.</p>
 </div>
 </div>
 <div class="sect2">
@@ -607,17 +636,23 @@ then orchestrates startup and configuration of
 operating in tandem.</p>
 </div>
 <div class="paragraph">
-<p><a href="#term_rbm_system">RBM System</a>
-wants to allow any
-<a href="#term_container">Container</a>
+<p>Presuming a solution to the
+<a href="#term_complication">Gateway Complication</a>,
+the <a href="#term_rbm_system">RBM System</a>
+allows any
+<a href="#term_image">Image</a>
 providing or using network services to function as a
-<a href="#term_bottle_container">Bottle Container</a>:
-through the gateway it receives during startup, it need not even know of the security layer.</p>
+<a href="#term_bottle_container">Bottle Container</a>.
+Interposing the
+<a href="#term_sentry_container">Sentry Container</a>
+as the gateway means the
+<a href="#term_bottle_container">Bottle Container</a>
+won&#8217;t even know a security layer is in place.</p>
 </div>
 <div class="paragraph">
 <p>The
 <a href="#term_sentry_container">Sentry Container</a>
-on the other hand sets up a potentially sophisticated set of network security safeguards that prevent malicious or compromized
+thus sets up a potentially sophisticated set of network security safeguards that prevent malicious or compromized
 <a href="#term_bottle_container">Bottle Containers</a>
 from exfiltrating the
 <a href="#term_user">User&#8217;s</a>
@@ -735,21 +770,21 @@ and their associated networks while providing isolation from other system resour
 to its
 <a href="#term_sentry_container">Sentry Container</a>,
 using the
-{rbn_enclave_network_base}/{rbn_enclave_netmask}
+{rbn_enclave_base_ip}/{rbn_enclave_netmask}
 for addressing.
 This network enforces strict security policies and provides the only communication path for the
 <a href="#term_bottle_container">Bottle Container</a>.</p>
 </dd>
 </dl>
 </div>
-<div id="term_uplink_network" class="dlist">
+<div id="term_transit_network" class="dlist">
 <dl>
-<dt class="hdlist1"><a href="#term_uplink_network">Uplink Network</a></dt>
+<dt class="hdlist1"><a href="#term_transit_network">Transit Network</a></dt>
 <dd>
 <p>The network interface that connects a
 <a href="#term_sentry_container">Sentry Container</a>
 to the
-<a href="#term_workstation">Workstation</a>'s
+<a href="#term_workstation">Workstation&#8217;s</a>
 network resources.
 This network enables controlled external communication while maintaining security boundaries.</p>
 </dd>
@@ -762,7 +797,7 @@ This network enables controlled external communication while maintaining securit
 <p>A privileged container that enforces network security policies for a
 <a href="#term_bottle_service">Bottle Service</a>.
 It connects to both
-<a href="#term_uplink_network">Uplink Network</a> and <a href="#term_enclave_network">Enclave Network</a>,
+<a href="#term_transit_network">Transit Network</a> and <a href="#term_enclave_network">Enclave Network</a>,
 controlling all network traffic and providing DNS services.</p>
 </dd>
 </dl>
@@ -875,7 +910,7 @@ provisions.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-12-15 08:28:43 -0800
+Last updated 2024-12-19 11:35:56 -0800
 </div>
 </div>
 </body>
