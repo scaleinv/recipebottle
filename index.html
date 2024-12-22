@@ -515,30 +515,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_the_gateway_complication">1. The <a href="#term_complication">Gateway Complication</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>I write this as I prepare to make a key feature request from the <code>podman</code> community BEFORE releasing the first version of the
-<a href="#term_rbm_system">RBM System</a>.</p>
-</div>
-<div class="paragraph">
-<p>Prototypes of this vision have worked quite well, but ultimately only for bespoke
-<a href="#term_bottle_container">Bottle Containers</a>
-that I construct myself with custom networking (i.e. <code>dhclient</code>, IP address overrides, etc).</p>
-</div>
-<div class="paragraph">
-<p>In short, I&#8217;m asking for podman to add something like a <code>podman network connect</code> feature flag perhaps called <code>--as-gateway</code> that causes podman to attach a
-<a href="#term_container">Container</a>
-expressly as the gateway for the network in question.
-This will let me run stock
-<a href="#term_bottle_container">Bottle Containers</a>
-without elevated privileges enabling after-boot redesignation of nameservers or late <code>ip route</code> additions.
-The dream is that such
-<a href="#term_container">Containers</a>
-do not even know they are operating in a security controlled regime:
-as long as they stay 'within their lane' and make only appropriate DNS requests that lead to permitted IP address use, their work can go forward.</p>
-</div>
-<div class="paragraph">
-<p>After quite a lot of frustrating experiment, my favorite AIs eventually divulged that <code>podman</code> has been moving away from the CNI networking backend in favor of a 'netavark' implementation.
-As primarily an embedded guy, I have no sophistication in such things, but I do find it hopeful that the simpler 'netavark' approach might be easier to install the <code>--as-gateway</code> flag.
-Maybe the vision of <code>podman</code> is compatibile with my needs as a small developer.</p>
+<p>The <a href="#term_rbm_system">RBM System</a> requires a container networking feature not yet available in podman. While prototypes have proven successful with custom networking configurations, I seek a more general solution that works with unmodified container images. For details, see the <a href="podman-gateway-proposal.md">draft podman gateway proposal</a> requesting podman add a container gateway designation feature.</p>
 </div>
 <div class="paragraph">
 <p>More soon I hope!</p>
