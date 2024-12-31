@@ -531,10 +531,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <img src="rbm-abstract-drawio.svg" alt="RBM System Architecture Diagram">
 </div>
 </div>    
-<p>Maintaining build and service environments is a real headache for the small development organization.
+<p>Maintaining build and service environments is a headache for the small development organization.
 <a href="#term_container">Containers</a>
 are an amazing tool for controlling package version constellations.
-I&#8217;ve nevertheless found them insufficient for high demands for reproducibility, security, and control for my build setups.</p>
+Necessary, but insufficient; I find that I need more redundancy, security, and control for my build setups.</p>
 </div>
 <div class="paragraph">
 <p>The
@@ -551,9 +551,9 @@ in sophisticated yet safe ways for me and my customer&#8217;s work?</p>
 <div class="paragraph">
 <p><a href="#term_rbm_system">RBM System</a> uses only <code>git</code>, <code>make</code>, <code>curl</code>, <code>yq</code> and a
 <a href="#term_runtime">Container Runtime</a>
-(hopefully <code>podman</code>) natively to produce a safe and controlled space for
-<a href="#term_container">Container</a>
-based development.
+(hopefully <code>podman</code>) natively to produce a safe and controlled space for development involving
+<a href="#term_container">Containers</a>
+heavily.
 <a href="#term_rbm_system">RBM System</a>
 itself is largely a set of Makefiles and bash scripts designed to be easily incorporated into arbitrary projects via <code>git subtree</code> graft.
 This is purely an open-source undertaking.</p>
@@ -574,11 +574,11 @@ With a configured personal access token, the
 <ul>
 <li>
 <p>Constructs
-<a href="#term_image">Image</a>
+<a href="#term_image">Images</a>
 in clean, isolated environments</p>
 </li>
 <li>
-<p>Generates software bills of materials for compliance</p>
+<p>Generates software bills of material for compliance</p>
 </li>
 <li>
 <p>Maintains build transcripts and commit references in the user&#8217;s git repository</p>
@@ -633,7 +633,7 @@ thus sets up a potentially sophisticated set of network security safeguards that
 <a href="#term_bottle_container">Bottle Containers</a>
 from exfiltrating the
 <a href="#term_user">User&#8217;s</a>
-code.
+assets.
 Through configuration of deeply mature tools <code>iptables</code> and <code>dnsmasq</code>, the
 <a href="#term_sentry_container">Sentry Container</a>
 prevents such illegal accesses.</p>
@@ -706,7 +706,7 @@ security constraints.</p>
 <a href="#term_bottle_service">Bottle Service</a>
 that creates temporary
 <a href="#term_bottle_container">Bottle Containers</a>
-for single operations, immediately removing them upon completion.
+for a single operation and then immediately removes them upon completion.
 This pattern suits toolchain operations that primarily operate through
 <a href="#term_volume_mount">Volume Mounts</a>
 with minimal network requirements.</p>
@@ -887,7 +887,7 @@ provisions.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-12-19 11:35:56 -0800
+Last updated 2024-12-31 07:56:02 -0800
 </div>
 </div>
 </body>

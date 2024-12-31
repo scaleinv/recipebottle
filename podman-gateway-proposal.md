@@ -3,7 +3,7 @@
 
 ## Title
 
-Enable Container to 'drop in' as network gateway
+Enable Container to connect as network gateway
 
 ## Feature Request Description (NEEDS SVG ATTACH)
 
@@ -11,7 +11,7 @@ I want a container running less trusted code ("BOTTLE") to be able to use a trus
 
 Find at [RBM System Vision](https://scaleinv.github.io/recipebottle) a diagram and abstract of my passion open-source project that needs this.
 
-Prototypes using `podman` with bespoke BOTTLE dockerfiles have proven the concept. However, for this project to succeed, it needs to be able to use existing images and/or stock dockerfiles for BOTTLE.
+Prototypes using podman with bespoke BOTTLE dockerfiles have proven the concept. However, for this project to succeed, it needs to be able to use existing images and/or stock dockerfiles for BOTTLE.
 
 Could podman add a network feature to allow SENTRY to function as gateway to BOTTLE from its earliest DHCP?
 
@@ -41,4 +41,5 @@ After finding that docker couldn't connect host and internal networks to the sam
 5. **Post-startup SENTRY Reconfiguration:** My latest attempts focused on reassigning SENTRY's IP after startup. This led to fascinating podman machine network namespace investigation with tcpdump, but ultimately failed due to ARP cache complications (AIs themselves uncertain that gratuitous ARP cache poisoning would work).
 6. **Future-proofing Investigation:** When ChatGPT suggested deeper focus on CNI customization, I learned podman is transitioning from CNI to netavark. I explored other container runtimes for stable future-proof CNI environments, from locally managed containerd to CRI-O. However, I think people who might want to use my open source starting point will want the full 'desktop' feature set absent from CRI-O and other kubernetes-focused alternatives.
 
-Finally, thank you podman maintainers for an amazing project! I'm not averse to attempting an implementation PR, once we scrub this concept for compatibility with your long term visions.
+Finally, thank you podman maintainers for an amazing project!
+I'm not averse to attempting an implementation PR myself, once we scrub this concept for consonance with your long term visions.
