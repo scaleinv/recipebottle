@@ -26,7 +26,7 @@ This parameterless option would:
 
 This simple, unobtrusive feature could enable many security-focused container patterns. A search of your open issues led me only to [DMZ Feature Request](https://github.com/containers/podman/issues/20222) which may be consonant, though idle.
 
-The proposed flag aligns well with podman's transition to netavark, potentially making implementation straightforward.
+The proposed flag might align well with podman's transition to netavark, potentially making implementation straightforward.
 
 ## Alternatives Considered
 
