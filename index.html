@@ -166,9 +166,9 @@ code {
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_the_recipe_bottle_workbench_vision">1. The Recipe Bottle Workbench Vision</a></li>
-<li><a href="#_the_current_problem">2. The Current Problem</a></li>
-<li><a href="#_the_recipe_bottle_workbench_vision_2">3. The Recipe Bottle Workbench Vision</a>
+<li><a href="#_overview">1. Overview</a></li>
+<li><a href="#_remaining_work_before_first_release">2. Remaining Work Before First Release</a></li>
+<li><a href="#_the_recipe_bottle_workbench_vision">3. The Recipe Bottle Workbench Vision</a>
 <ul class="sectlevel2">
 <li><a href="#_part_one_image_management">3.1. Part One: Image Management</a></li>
 <li><a href="#_part_two_bottle_service_orchestration">3.2. Part Two: Bottle Service Orchestration</a></li>
@@ -181,7 +181,7 @@ code {
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_the_recipe_bottle_workbench_vision">1. The <a href="#term_rbm_system">Recipe Bottle Workbench</a> Vision</h2>
+<h2 id="_overview">1. Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>The
@@ -208,64 +208,28 @@ essential for small teams experimenting with diverse, potentially risky codebase
 </div>
 </div>
 <div class="sect1">
-<h2 id="_the_current_problem">2. The <a href="#term_problem">Current Problem</a></h2>
+<h2 id="_remaining_work_before_first_release">2. <a href="#term_problem">Remaining Work Before First Release</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Recent Podman versions (5.3+) have systematically blocked network namespace manipulation, invalidating our prototype
-<a href="#term_sentry_container">Sentry Container</a>/<a href="#term_bottle_container">Bottle Container</a>
-architecture that relied on VM manipulation of network namespaces.
-The proposed solution abandons namespace manipulation entirely in favor of leveraging Podman&#8217;s native networking with careful routing configuration.</p>
+<p>The discovery that GHCR does not implement OCI-compliant reference counting creates a critical operational risk for small development teams. When deleting older container images, GHCR may also remove shared layers that newer images depend upon, potentially breaking the entire image repository. This violates the OCI specification&#8217;s requirement for proper layer management and makes GHCR unsuitable for projects requiring predictable image lifecycle management.</p>
 </div>
 <div class="paragraph">
-<p><strong>Proposed Concept:</strong></p>
+<p>For teams maintaining multiple versions of containers or performing regular cleanup of old builds, this deficiency transforms routine maintenance into a dangerous operation. The lack of reference counting means there&#8217;s no safe way to know which images share layers, forcing teams to either keep all historical images (consuming storage and increasing costs) or risk breaking their container infrastructure.</p>
 </div>
 <div class="paragraph">
-<p>Deploy a
-<a href="#term_censer_container">Censer Container</a>
-that configures the network namespace to use the
-<a href="#term_sentry_container">Sentry Container</a>
-as its default gateway before the
-<a href="#term_bottle_container">Bottle Container</a>
-starts.
-The approach will:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Configure the default route to point to the
-<a href="#term_sentry_container">Sentry Container&#8217;s</a>
-IP address</p>
-</li>
-<li>
-<p>Disable netavark&#8217;s DNS service to prevent direct resolution</p>
-</li>
-<li>
-<p>Ensure all traffic from the
-<a href="#term_bottle_container">Bottle Container</a>
-flows through the
-<a href="#term_sentry_container">Sentry Container</a></p>
-</li>
-<li>
-<p>Allow the
-<a href="#term_sentry_container">Sentry Container</a>
-to reach the host network normally</p>
-</li>
-</ul>
+<p>The
+<a href="#term_rbm_system">Recipe Bottle Workbench</a>
+will disconnect from exclusive GHCR integration and instead allow
+<a href="#term_user">Users</a>
+to select any fully OCI-compliant container registry such as AWS ECR, Azure ACR, or Quay. These registries properly implement layer reference counting, ensuring that shared layers remain available as long as any image requires them.</p>
 </div>
 <div class="paragraph">
-<p>Both containers will operate on a single
-<a href="#term_enclave_network">Enclave Network</a>
-created with <code>--internal</code> and <code>--disable-dns</code> flags.
-The
-<a href="#term_bottle_container">Bottle Container</a>
-inherits the pre-configured namespace via <code>--net=container:censer</code>, ensuring it cannot bypass the security controls.
-This design requires no eBPF programming, no special kernel capabilities beyond standard networking, and works within Podman&#8217;s architecture.
-The approach should remain stable across Podman updates since it relies on standard Linux routing.</p>
+<p>Additionally, the project&#8217;s build infrastructure currently relies on Makefiles, which limits portability. Converting to pure bash 3.2 implementation will ensure broader compatibility across development environments.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_the_recipe_bottle_workbench_vision_2">3. The <a href="#term_rbm_system">Recipe Bottle Workbench</a> Vision</h2>
+<h2 id="_the_recipe_bottle_workbench_vision">3. The <a href="#term_rbm_system">Recipe Bottle Workbench</a> Vision</h2>
 <div class="sectionbody">
 <div class="imageblock text-center">
 <div class="content">
@@ -275,7 +239,7 @@ The approach should remain stable across Podman updates since it relies on stand
 </div>
 <div class="paragraph">
 <p>Maintaining build and service environments is a headache for the small development organization.
-<a href="#term_container">Containers</a>
+Containers
 are an amazing tool for controlling package version constellations.
 Necessary, but insufficient; I find that I need more redundancy, security, and control for my build setups.</p>
 </div>
@@ -288,14 +252,14 @@ The vision is simple: how can a
 run only a few apps natively on a
 <a href="#term_workstation">Workstation</a>
 to coordinate and arrange
-<a href="#term_container">Containers</a>
+containers
 in sophisticated yet safe ways for me and my customer&#8217;s work?</p>
 </div>
 <div class="paragraph">
 <p><a href="#term_rbm_system">Recipe Bottle Workbench</a> uses only <code>bash</code>, <code>git</code>, <code>curl</code>, <code>yq</code> and a
 <a href="#term_runtime">Container Runtime</a>
 (currently only <code>podman</code>) natively to produce a safe and controlled space for development involving
-<a href="#term_container">Containers</a>
+containers
 heavily.
 <a href="#term_rbm_system">Recipe Bottle Workbench</a>
 itself is largely a set of bash scripts designed to be easily incorporated into arbitrary projects via
@@ -309,10 +273,9 @@ This is purely an open-source undertaking.</p>
 <p>The
 <a href="#term_rbm_system">Recipe Bottle Workbench</a>
 streamlines
-<a href="#term_container">Container</a> <a href="#term_image">Image</a>
-creation and maintenance through GitHub Actions and the
-<a href="#term_ghcr">GHCR</a>.
-With a configured personal access token, the
+container <a href="#term_image">Image</a>
+creation and maintenance through GitHub Actions and OCI-compliant registries.
+With a configured access token, the
 <a href="#term_build_service">Build Service</a>:</p>
 </div>
 <div class="ulist">
@@ -333,7 +296,7 @@ in clean, isolated environments</p>
 <a href="#term_image">Images</a>
 in the
 <a href="#term_user">User&#8217;s</a>
-<a href="#term_ghcr">GHCR</a></p>
+chosen OCI-compliant registry</p>
 </li>
 </ul>
 </div>
@@ -355,7 +318,7 @@ management practices.</p>
 <div class="sect2">
 <h3 id="_part_two_bottle_service_orchestration">3.2. Part Two: <a href="#term_bottle_service">Bottle Service</a> Orchestration</h3>
 <div class="paragraph">
-<p>For development services requiring internet and/ or IP connectivity at the
+<p>For development services requiring internet and/or IP connectivity at the
 <a href="#term_workstation">Workstation</a>,
 <a href="#term_rbm_system">Recipe Bottle Workbench</a>
 then orchestrates startup and configuration of
@@ -368,23 +331,27 @@ and a
 operating together.</p>
 </div>
 <div class="paragraph">
-<p>Presuming a solution to the
-<a href="#term_problem">Current Problem</a>,
-the <a href="#term_rbm_system">Recipe Bottle Workbench</a>
+<p>The <a href="#term_rbm_system">Recipe Bottle Workbench</a>
 allows any
 <a href="#term_image">Image</a>
 providing or using network services to function as a
 <a href="#term_bottle_container">Bottle Container</a>.
-Interposing the
-<a href="#term_sentry_container">Sentry Container</a>
-as the gateway means the
+The
+<a href="#term_censer_container">Censer Container</a>
+establishes a privileged network namespace, configures it to route all traffic through the
+<a href="#term_sentry_container">Sentry Container</a>,
+then shares this pre-configured namespace with the
+<a href="#term_bottle_container">Bottle Container</a>.
+This ensures security policies are enforced from the first packet, and the
 <a href="#term_bottle_container">Bottle Container</a>
-won&#8217;t even know a security layer is in place.</p>
+experiences only a functional path to its
+<a href="#term_sentry_container">Sentry Container</a>
+gateway.</p>
 </div>
 <div class="paragraph">
 <p>The
 <a href="#term_sentry_container">Sentry Container</a>
-thus sets up a potentially sophisticated set of network security safeguards that prevent malicious or compromized
+thus sets up a potentially sophisticated set of network security safeguards that prevent malicious or compromised
 <a href="#term_bottle_container">Bottle Containers</a>
 from exfiltrating the
 <a href="#term_user">User&#8217;s</a>
@@ -410,7 +377,9 @@ This empowers organizations to leverage the expanding ecosystem of containerized
 <dt class="hdlist1"><a href="#term_bottle_service">Bottle Service</a></dt>
 <dd>
 <p>A complete service instance consisting of one
-<a href="#term_bottle_container">Bottle Container</a>
+<a href="#term_bottle_container">Bottle Container</a>,
+one
+<a href="#term_censer_container">Censer Container</a>,
 and one
 <a href="#term_sentry_container">Sentry Container</a>
 working together to provide secure functionality.</p>
@@ -487,11 +456,13 @@ controlling all network traffic and providing DNS services.</p>
 <dl>
 <dt class="hdlist1"><a href="#term_censer_container">Censer Container</a></dt>
 <dd>
-<p>A temporary container using a minimal image that establishes the network namespace and veth interface,
-allowing eBPF program attachment before the
+<p>A privileged container using a minimal image that establishes and configures the network namespace before the
 <a href="#term_bottle_container">Bottle Container</a>
 starts.
-This ensures security policies are enforced from the first network packet.</p>
+It sets up routing to ensure all traffic flows through the
+<a href="#term_sentry_container">Sentry Container</a>,
+then shares this pre-configured namespace with the
+<a href="#term_bottle_container">Bottle Container</a>.</p>
 </dd>
 </dl>
 </div>
@@ -499,11 +470,14 @@ This ensures security policies are enforced from the first network packet.</p>
 <dl>
 <dt class="hdlist1"><a href="#term_bottle_container">Bottle Container</a></dt>
 <dd>
-<p>A container that runs the actual service functionality, connected only to the
+<p>A container that runs the actual service functionality, inheriting its network namespace from the
+<a href="#term_censer_container">Censer Container</a>
+via <code>--net=container:censer</code>.
+Connected only to the
 <a href="#term_enclave_network">Enclave Network</a>
 and configured with specific
-<a href="#term_volume_mount">Volume Mounts</a>.
-All external communication flows through its associated
+<a href="#term_volume_mount">Volume Mounts</a>,
+all external communication flows through its associated
 <a href="#term_sentry_container">Sentry Container</a>.</p>
 </dd>
 </dl>
@@ -516,20 +490,12 @@ All external communication flows through its associated
 </dd>
 </dl>
 </div>
-<div id="term_container" class="dlist">
-<dl>
-<dt class="hdlist1"><a href="#term_container">Container</a></dt>
-<dd>
-<p>A lightweight, standalone executable package containing all necessary components to run a service.</p>
-</dd>
-</dl>
-</div>
 <div id="term_volume_mount" class="dlist">
 <dl>
 <dt class="hdlist1"><a href="#term_volume_mount">Volume Mount</a></dt>
 <dd>
 <p>A configuration that allows
-<a href="#term_container">Containers</a>
+containers
 to access specified portions of the host filesystem.</p>
 </dd>
 </dl>
@@ -540,8 +506,7 @@ to access specified portions of the host filesystem.</p>
 <dd>
 <p>A system managing container creation through
 <a href="#term_build_workflow">Build Workflows</a>
-and the
-<a href="#term_ghcr">GHCR</a>,
+and OCI-compliant registries,
 enabling
 <a href="#term_user">Users</a>
 to build containers with complete traceability.</p>
@@ -559,15 +524,14 @@ including build transcripts and commit references that verify container origins.
 </dd>
 </dl>
 </div>
-<div id="term_ghcr" class="dlist">
+<div id="term_problem" class="dlist">
 <dl>
-<dt class="hdlist1"><a href="#term_ghcr">GHCR</a></dt>
+<dt class="hdlist1"><a href="#term_problem">Remaining Work Before First Release</a></dt>
 <dd>
-<p>The GitHub Container Registry where the
-<a href="#term_build_service">Build Service</a>
-stores validated containers,
-providing versioned images for use by
-<a href="#term_bottle_service">Bottle Services</a>.</p>
+<p>The set of technical challenges that must be resolved before the
+<a href="#term_rbm_system">Recipe Bottle Workbench</a>
+can be released,
+including registry selection and build system implementation.</p>
 </dd>
 </dl>
 </div>
@@ -588,11 +552,11 @@ build and publish containers while maintaining security controls.</p>
 <dt class="hdlist1"><a href="#term_runtime">Container Runtime</a></dt>
 <dd>
 <p>Application capable of running
-<a href="#term_container">Containers</a>
+containers
 on the
 <a href="#term_workstation">Workstation</a>.
 Early experiments with <code>docker</code> led to disappointing results concerning interlacing host networking and internal networking.
-At the time of this writing, <code>podman</code> does not yet have the features for full
+At the time of this writing, <code>podman</code> provides the necessary features for full
 <a href="#term_bottle_service">Bottle Service</a>
 provisions.</p>
 </dd>
@@ -641,15 +605,23 @@ provisions.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Oct 7, 2024</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">GitHub Action performed docker image build.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GitHub Action performed docker
+<a href="#term_image">Image</a>
+build.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Nov 2024</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Bespoke BOTTLE container images with custom networking use Sentry networking via Claude curated requirements and script generation.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Bespoke
+<a href="#term_bottle_container">Bottle Container</a>
+images with custom networking use
+<a href="#term_sentry_container">Sentry Container</a>
+networking via Claude curated requirements and script generation.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Dec 2024</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Experiments to start unmodified BOTTLE image containers using podman networking configurations fail.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Experiments to start unmodified
+<a href="#term_bottle_container">Bottle Container</a>
+images using podman networking configurations fail.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Dec 31, 2024</p></td>
@@ -661,7 +633,9 @@ provisions.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Jan 2025</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Podman 5.2 VMs running unmodified BOTTLE images using VM network namespace machinations.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Podman 5.2 VMs running unmodified
+<a href="#term_bottle_container">Bottle Container</a>
+images using VM network namespace machinations.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Feb 2025</p></td>
@@ -677,11 +651,18 @@ provisions.</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">July 3, 2025</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">CENSER container as privileged network namespace configurator hosting unprivileged BOTTLE functions; all SENTRY/ BOTTLE test cases pass again.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="#term_censer_container">Censer Container</a>
+as privileged network namespace configurator hosting unprivileged
+<a href="#term_bottle_container">Bottle Container</a>
+functions; all
+<a href="#term_sentry_container">Sentry Container</a>/<a href="#term_bottle_container">Bottle Container</a>
+test cases pass again.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock">July 27, 2025</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">GHCR image deletions determined unsafe due to lack of OCI-specified reference counting on layers; deleting old images can destroy new ones.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">GHCR
+<a href="#term_image">Image</a>
+deletions determined unsafe due to lack of OCI-specified reference counting on layers; deleting old images can destroy new ones.</p></td>
 </tr>
 </tbody>
 </table>
@@ -690,7 +671,7 @@ provisions.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2025-07-29 09:26:56 -0700
+Last updated 2025-07-29 10:00:11 -0700
 </div>
 </div>
 <script>
