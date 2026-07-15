@@ -1,0 +1,25 @@
+@startuml
+title Federation Setup - one-time, Payor-side / org admin\nSource: memo-20260527-operator-credential-models.md
+
+actor "Payor\n(org admin)" as PAYOR
+participant "gcloud / REST\n(setup only)" as SETUP
+participant "GCP IAM\n(org-level)" as IAM
+participant "External IdP\n(OIDC / SAML 2.0)" as IDP
+participant "Federation regime\n(RBRF)" as RBRF
+
+note over PAYOR, IAM : Workforce pool is **org-level only** -\na plain project cannot hold one. This is the free/paid tier boundary.
+
+PAYOR -> SETUP : configure federation
+SETUP -> IAM : create org-level **workforce pool**
+SETUP -> IAM : create **provider** in pool,\ntrust external IdP (OIDC / SAML 2.0)
+SETUP -> IAM : set **attribute mapping**\ngoogle.subject <- immutable IdP claim (sub/oid, <=127 B)
+note right of IAM : a *mutable* claim invites spoofing
+SETUP -> IAM : grant depot capability to federated principal\nprincipal://.../workforcePools/POOL/subject/SUBJECT
+
+PAYOR -> RBRF : record federation facts\npool, provider, attribute mapping, IdP endpoints
+note right of RBRF : RBRF is org-scoped and committed -\none pool serves every depot under the manor; carries no secrets
+
+note over PAYOR, IDP : Identity proofing lives entirely in the IdP.\nRBK only grants capability to an already-known principal;\nthe depot remains home of the role-to-identity roster.
+note over SETUP, IAM : gcloud / REST touches **setup only**\n(pool & provider creation) - **never runtime**.
+
+@enduml

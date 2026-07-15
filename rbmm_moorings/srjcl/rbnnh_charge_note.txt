@@ -1,0 +1,1 @@
+JupyterLab ready: http://localhost:{{RBRN_ENTRY_PORT_WORKSTATION}}/lab

@@ -1,0 +1,10 @@
+Pre-created bind mountpoint for the bottle's nested `/workspace/project` mount
+(see tadmor/moriah rbnnh_compose.yml: `../:${RBRR_BOTTLE_WORKSPACE}/project:ro`).
+
+Docker Desktop's WSL2 backend denies runc's auto-mkdir of a mountpoint *inside*
+a Windows-hosted bind (the rw `rbtid -> /workspace` mount), so this nested
+`project` mountpoint must already exist in the bind source. Cross-platform
+no-op: on Linux/macOS the read-only repo bind overlays this empty dir.
+
+Retire when the mounts de-nest, or Docker Desktop fixes nested-mountpoint
+creation on Windows-hosted binds. Heat BV (cygwin-spike).

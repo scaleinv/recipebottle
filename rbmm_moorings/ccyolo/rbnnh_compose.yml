@@ -1,0 +1,18 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# ccyolo nameplate compose fragment — Claude Code bottle overrides
+#
+# Merged with rbob_compose.yml via: -f .rbk/rbob_compose.yml -f .rbk/ccyolo/compose.yml
+# Paths are relative to the first compose file's directory (.rbk/)
+
+services:
+  bottle:
+    env_file:
+      - ccyolo/rbrn.env
+    environment:
+      - DISABLE_TELEMETRY=1
+      - DISABLE_ERROR_REPORTING=1
+      - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+    volumes:
+      - ../rbev-vessels/rbev-bottle-ccyolo/workspace:/home/${RBRV_USER}/workspace:rw

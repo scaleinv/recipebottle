@@ -1,0 +1,73 @@
+### IntelliJ IDEA ###
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+!Tools/vvk/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+# podman trash
+NUL
+
+# drawio temp/backup files
+.*drawio*.bkp
+.*drawio*.dtmp
+
+# Claude Code - ignore machine-specific settings (settings.json IS tracked as shared project config)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock
+
+### Python ###
+__pycache__/
+*.py[cod]
+*$py.class
+lenses/.idea/
+Tools/vvk/bin/vvx-*
+
+# Dictionary refresh staging (manual SSA download)
+Tools/apck/apcd/dictionaries/.ssa_names_staging.zip
+
+# APCK journal directory — runtime captures + tee'd apcap.log belong
+# outside any repo tree; this guard catches a misdirected $HOME resolution
+# that lands in-tree.
+apcjd/
+
+# Rust build artifacts
+**/target/
+Tools/vvc/target/
+
+# Officium exchange directories (ephemeral, per-session)
+.claude/jjm/officia/
+
+# rbef_keycloak live federation regime — the ONE sanctioned deviation from
+# RBSRF ships-committed: the Keycloak orchestrator (rbxk_keycloak) renders this
+# live rbrf.env per charge from rbrf.env.template plus the ephemeral public JWKS
+# (committed nowhere, RBSFK). The template beside it IS committed; only the
+# rendered live file is ignored, so setup keeps the tree clean (untracked, ungated).
+rbmm_moorings/rbmf_foedera/rbef_keycloak/rbrf.env
+
+# JJK release directory (parcels ignored via .jjk/.gitignore)
+**/gen/

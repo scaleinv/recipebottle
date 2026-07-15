@@ -1,0 +1,4 @@
+PlantUML server ready: http://localhost:{{RBRN_ENTRY_PORT_WORKSTATION}}
+Open the URL for the interactive editor, or POST PlantUML source to /svg or /png.
+Sample:
+  printf '@startuml\na -> b\n@enduml\n' | curl -s --data-binary @- http://localhost:{{RBRN_ENTRY_PORT_WORKSTATION}}/svg

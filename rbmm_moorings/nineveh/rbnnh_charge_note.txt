@@ -1,0 +1,4 @@
+Kroki-core ready: http://localhost:{{RBRN_ENTRY_PORT_WORKSTATION}}
+Core engines: graphviz, plantuml, d2 — POST diagram source to /<engine>/svg
+Sample (graphviz):
+  echo 'digraph { a -> b }' | curl -s --data-binary @- http://localhost:{{RBRN_ENTRY_PORT_WORKSTATION}}/graphviz/svg

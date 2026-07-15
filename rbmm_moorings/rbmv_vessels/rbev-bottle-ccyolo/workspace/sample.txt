@@ -1,0 +1,21 @@
+The Recipe Bottle project builds sandboxed container environments where
+AI agents can operate with full autonomy. The key insight is that network
+containment makes autonomy safe — if the container can only reach the AI
+provider, the agent cannot exfiltrate data or cause harm to external
+systems.
+
+A Crucible is the running instance of this containment. The Sentry
+enforces network rules, the Pentacle establishes the namespace, and the
+Bottle holds the workload. When you charge a Crucible, all three
+containers start in sequence — the Sentry must confirm its iptables
+rules before the Bottle can begin.
+
+The project uses a vocabulary-first approach: every concept has a
+specific name, and the names carry meaning. A Vessel is a container
+specification. A Hallmark is a specific build. A Nameplate ties the
+pieces together. The vocabulary is dense but precise — once you learn
+the names, the system becomes navigable.
+
+This is the ccyolo bottle — the simplest path into the system. You are
+inside a container that can only reach Anthropic. Everything else is
+blocked. The sentry is watching. The containment is real.

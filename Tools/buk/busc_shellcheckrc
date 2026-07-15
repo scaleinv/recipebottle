@@ -1,0 +1,83 @@
+# busc_shellcheckrc — BCG-structural shellcheck suppressions
+#
+# These codes are false positives caused by BCG's module architecture:
+# dynamic sourcing via BURD_* paths, cross-module kindle/literal constants,
+# and indirect function invocation via source/dispatch.
+#
+# Policy: No inline shellcheck directives anywhere in the codebase.
+# All structural suppressions live here. Genuine findings must be fixed.
+
+# SC1090: Can't follow non-constant source.
+#   BCG furnish pattern sources via "${BURD_BUK_DIR}/module.sh" —
+#   shellcheck cannot resolve variable-based paths.
+disable=SC1090
+
+# SC1091: Not following: file was not specified as input.
+#   Same root cause as SC1090. Shellcheck doesn't know sourced files
+#   exist because paths are computed at runtime.
+disable=SC1091
+
+# SC2034: Variable appears unused.
+#   Literal constants and kindle constants are defined in one module
+#   and consumed by other modules after sourcing. Shellcheck sees
+#   assignment but not the cross-module usage.
+disable=SC2034
+
+# SC2154: Variable referenced but not assigned.
+#   Inverse of SC2034. Variables defined in sourced modules (kindle
+#   constants, literal constants, regime fields) are invisible to
+#   shellcheck in the consuming file.
+disable=SC2154
+
+# SC2155: Declare and assign separately to avoid masking return values.
+#   BCG explicitly blesses single-line $(<file) assignment:
+#     local z_content=$(<"${Z_FILE}")
+#   This is a bash builtin, not command substitution. BCG requires the
+#   two-line pattern only for _capture functions using $().
+disable=SC2155
+
+# SC2153: Possible misspelling.
+#   Cross-module variable names with similar prefixes (e.g., ZRBGU_PREFIX
+#   used in rbgb module) trigger false misspelling suggestions.
+disable=SC2153
+
+# SC2329: Function is never invoked.
+#   BUK functions are invoked indirectly via source and dispatch.
+#   Shellcheck cannot trace the dynamic call graph.
+disable=SC2329
+
+# SC2016: Expressions don't expand in single quotes.
+#   BCG template-generation patterns (buut_tabtarget.sh, buq_qualify.sh,
+#   cloud build scripts) echo single-quoted strings containing ${} into
+#   generated files (tabtargets, launchers, Dockerfiles). The expressions
+#   are intended for the generated file's runtime, not the generator's.
+disable=SC2016
+
+# SC2254: Quote expansions in case patterns to match literally.
+#   BCG glob-matching patterns intentionally use unquoted variables in
+#   case statements (e.g., exemption patterns in buq_qualify.sh).
+#   The glob expansion is the desired behavior.
+disable=SC2254
+
+# SC2059: Don't use variables in the printf format string.
+#   BCG table-formatting patterns define a local -r format constant
+#   (e.g., z_row_fmt) used across header, separator, and data rows.
+#   The variable is always a locally-defined constant, never user input.
+disable=SC2059
+
+# ─── Site-specific false positives (verified, not BCG-structural) ───
+# Isolated single-site false positives confirmed by reading the code.
+# Disabling tree-wide is the accepted cost of the no-inline-directives policy.
+
+# SC2088: Tilde does not expand in quotes.
+#   jjfp_fundus.sh zjjfp_double_hop_pipe passes "~/.ssh/authorized_keys" through a
+#   double-hop ssh pipe; the tilde stays literal locally and on the middle hop and
+#   expands on the final remote shell to the target account's home. Local expansion
+#   (curia operator's home) would be wrong — the quoting is correct.
+disable=SC2088
+
+# SC1003: Want to escape a single quote?
+#   rbfh_hygiene.sh Rule 3 uses the case glob *'\') to match a FROM line
+#   ending in a literal backslash (Dockerfile line-continuation). The single-quoted
+#   backslash is genuinely literal; no single-quote escaping is intended.
+disable=SC1003

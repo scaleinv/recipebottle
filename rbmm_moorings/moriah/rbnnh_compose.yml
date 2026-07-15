@@ -1,0 +1,23 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Moriah nameplate compose fragment — ifrit bottle overrides (airgap variant)
+#
+# Merged with rbob_compose.yml via: -f .rbk/rbob_compose.yml -f .rbk/moriah/compose.yml
+# Paths are relative to the first compose file's directory (.rbk/)
+
+services:
+  bottle:
+    user: "${RBRV_USER}:${RBRV_USER}"
+    working_dir: ${RBRR_BOTTLE_WORKSPACE}
+    env_file:
+      - moriah/rbrn.env
+    environment:
+      - DISABLE_TELEMETRY=1
+      - DISABLE_ERROR_REPORTING=1
+      - CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
+    cap_add:
+      - NET_RAW
+    volumes:
+      - ../Tools/rbk/rbtid:${RBRR_BOTTLE_WORKSPACE}:rw
+      - ../:${RBRR_BOTTLE_WORKSPACE}/project:ro

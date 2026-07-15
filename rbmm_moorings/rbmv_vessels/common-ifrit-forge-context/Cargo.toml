@@ -1,0 +1,9 @@
+[package]
+name = "rbid"
+version = "0.1.0"
+edition = "2021"
+description = "Ifrit — in-bottle attack binary for Recipe Bottle crucible testing"
+
+[dependencies]
+socket2 = { version = "0.5", features = ["all"] }
+libc = "0.2"

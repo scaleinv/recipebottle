@@ -1,0 +1,12 @@
+[package]
+name = "rbtd"
+version = "0.1.0"
+edition = "2021"
+description = "Theurge — crucible test orchestrator for Recipe Bottle"
+
+[dependencies]
+tungstenite = "0.24"
+# Clipboard READ capability for the clipboard fixture's round-trip case —
+# deliberately test-binary-only: no clipboard-read primitive exists on the
+# shipped bash surface (operator ruling 260704).
+arboard = "3"

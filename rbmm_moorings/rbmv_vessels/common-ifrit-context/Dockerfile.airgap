@@ -1,0 +1,28 @@
+# Ifrit (airgap variant) — in-bottle attack binary for Recipe Bottle crucible testing
+#
+# Builds FROM the enshrined forge image which pre-stages all apt packages and
+# a warm cargo dependency cache. This build needs zero network access — only
+# the project's own rbid crate compiles.
+#
+# Build context: rbev-vessels/common-ifrit-context/ (shared with tether variant)
+
+ARG RBF_IMAGE_1
+FROM ${RBF_IMAGE_1}
+
+# Real source build (dependency cache warm from forge — only rbid compiles)
+WORKDIR /build
+COPY src/ src/
+COPY Cargo.toml Cargo.lock ./
+RUN cargo build --release
+
+# Install binary to standard location with CAP_NET_RAW file capability.
+# Container cap_add only populates the bounding set; non-root ifrit user
+# needs file capabilities to get NET_RAW in effective set for raw sockets.
+RUN cp target/release/rbid /usr/local/bin/rbid && \
+    setcap cap_net_raw+ep /usr/local/bin/rbid
+
+# Create unprivileged ifrit user
+RUN useradd -m -s /bin/bash ifrit
+
+# Keep the container alive with echo service on port 8888
+CMD ["socat", "TCP-LISTEN:8888,fork,reuseaddr", "EXEC:cat"]

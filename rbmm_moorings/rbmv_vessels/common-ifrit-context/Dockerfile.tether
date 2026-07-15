@@ -1,0 +1,49 @@
+# Ifrit (tether variant) — in-bottle attack binary for Recipe Bottle crucible testing
+#
+# Single-stage build: Rust toolchain stays in image (test vessel, size
+# irrelevant, iteration speed matters). Layer-cached dependency compilation
+# means source-only changes rebuild just the ifrit crate.
+#
+# Build context: rbev-vessels/common-ifrit-context/ (shared between tether and
+# airgap variants — companion Dockerfile.airgap builds FROM a pre-warmed forge
+# image to satisfy airgap egress discipline).
+
+ARG RBF_IMAGE_1
+FROM ${RBF_IMAGE_1}
+
+# Avoid prompts from apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install network tools for security boundary probes
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    socat           `# Echo service on port 8888 (entry port security tests)`  \
+    dnsutils        `# dig/nslookup for DNS security tests`                    \
+    netcat-openbsd  `# nc for TCP connectivity tests`                          \
+    traceroute      `# ICMP path verification tests`                           \
+    strace          `# Syscall boundary mapping from inside the container`     \
+    libcap2-bin     `# setcap for CAP_NET_RAW file capability on ifrit binary` \
+    curl            `# HTTP client for ad-hoc connectivity diagnosis`          \
+    && rm -rf /var/lib/apt/lists/*
+
+# Layer-cached dependency build: copy manifests first, dummy compile
+WORKDIR /build
+COPY Cargo.toml Cargo.lock ./
+RUN mkdir src && echo 'fn main() {}' > src/main.rs && \
+    cargo build --release && \
+    rm -rf src target/release/deps/rbid-* target/release/.fingerprint/rbid-*
+
+# Real source build
+COPY src/ src/
+RUN cargo build --release
+
+# Install binary to standard location with CAP_NET_RAW file capability.
+# Container cap_add only populates the bounding set; non-root ifrit user
+# needs file capabilities to get NET_RAW in effective set for raw sockets.
+RUN cp target/release/rbid /usr/local/bin/rbid && \
+    setcap cap_net_raw+ep /usr/local/bin/rbid
+
+# Create unprivileged ifrit user
+RUN useradd -m -s /bin/bash ifrit
+
+# Keep the container alive with echo service on port 8888
+CMD ["socat", "TCP-LISTEN:8888,fork,reuseaddr", "EXEC:cat"]

@@ -1,0 +1,15 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# srjcl nameplate compose fragment — bottle workspace bind mount + API key passthrough
+#
+# Merged with rbob_compose.yml via: -f .rbk/rbob_compose.yml -f .rbk/srjcl/rbnnh_compose.yml
+# Paths are relative to the first compose file's directory (.rbk/);
+# bare-name environment entries inherit from the shell that ran the charge.
+
+services:
+  bottle:
+    volumes:
+      - ./srjcl/workspace:${RBRR_BOTTLE_WORKSPACE}:rw
+    environment:
+      - ANTHROPIC_API_KEY

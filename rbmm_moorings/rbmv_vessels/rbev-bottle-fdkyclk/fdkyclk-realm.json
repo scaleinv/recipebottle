@@ -1,0 +1,74 @@
+{
+  "realm": "fdkyclk",
+  "enabled": true,
+  "displayName": "fdkyclk synthetic federation test IdP",
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "attributes": {
+    "frontendUrl": "https://fdkyclk.test"
+  },
+  "identityProviders": [
+    {
+      "alias": "fdkyclk-asserter",
+      "providerId": "jwt-authorization-grant",
+      "enabled": true,
+      "config": {
+        "jwtAuthorizationGrantEnabled": "true",
+        "jwtAuthorizationGrantAssertionSignatureAlg": "RS256",
+        "issuer": "https://fdkyclk-asserter.test",
+        "useJwksUrl": "false",
+        "publicKeySignatureVerifierKeyId": "fdkyclk-asserter-key-1",
+        "publicKeySignatureVerifier": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtTebb8gJ3nsyVb6mmZxOJfCh346wRNdlAcpVchwciMTQ6lNR2AWIjQB62spAFMyIjEt+fg1BpJ9RioOXLmmfnmiPFqnNcYKs6xMVxvxYO3846EpqmuAP7+jbYQ8U/F8+sn28lfHAeEUP87m9yk/jXWavV8EztuXvy5rDk4w+zBFoblecMbhuNtFipQZZBUPNWqHc4dlhCNVZjne8C+hdxylCe4qEn82uKW2VUGMf/FDWDc/mtu6eZJx5zzbUaXTKNcpmGWRsfM3DjcGlBLEGf3W/gI+PrRzYB0JpnnGPYGYu8rrinvsouVkm8mozApYbuJTq9+csbDpMg6kGjbIjawIDAQAB"
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "fdkyclk-gcp",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "fdkyclk-test-secret",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true,
+      "attributes": {
+        "oauth2.jwt.authorization.grant.enabled": "true",
+        "oauth2.jwt.authorization.grant.idp": "fdkyclk-asserter"
+      },
+      "protocolMappers": [
+        {
+          "name": "gcp-aud",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "fdkyclk-gcp",
+            "id.token.claim": "true",
+            "access.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "67c2d407-fbd7-466b-aafc-2aca99a17de2",
+      "username": "federate",
+      "enabled": true,
+      "email": "federate@fdkyclk.test",
+      "emailVerified": true,
+      "firstName": "Federate",
+      "lastName": "Subject",
+      "federatedIdentities": [
+        {
+          "identityProvider": "fdkyclk-asserter",
+          "userId": "fdkyclk-ext-subject-001",
+          "userName": "fdkyclk-ext-subject-001"
+        }
+      ]
+    }
+  ]
+}

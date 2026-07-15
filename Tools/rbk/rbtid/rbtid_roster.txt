@@ -1,0 +1,14 @@
+# Ifrit sortie roster — explicit list of sorties to dispatch
+# One sortie name per line (without rbtis_ prefix or .py extension)
+# Unrostered rbtis_*.py files are flagged as rogue
+dns_exfil_subdomain
+icmp_exfil_payload
+meta_cloud_endpoint
+net_forbidden_cidr
+direct_sentry_probe
+proto_smuggle_rawsock
+net_ipv6_escape
+net_fragment_evasion
+net_srcip_spoof
+direct_arp_poison
+ns_capability_escape

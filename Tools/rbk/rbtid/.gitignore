@@ -1,0 +1,5 @@
+# Debrief output — regenerated on each adjutant run, not committed
+rbtid_debrief.json
+
+# Claude Code local settings — created by container, root-owned
+.claude/

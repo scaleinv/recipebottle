@@ -1,0 +1,107 @@
+# Copyright 2026 Scale Invariant, Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# Recipe Bottle base compose file — static infrastructure
+#
+# Invoked via:
+#   docker compose --env-file rbmm_moorings/rbrr.env --env-file rbmm_moorings/rbrd.env \
+#     --env-file rbmm_moorings/{moniker}/rbrn.env \
+#     -f Tools/rbk/rbob_compose.yml [-f rbmm_moorings/{moniker}/rbnnh_compose.yml] -p {moniker} up -d
+#
+# Env-file variables serve dual purpose:
+#   1. YAML interpolation (${VAR} in this file — image refs, subnet, container names)
+#   2. Container environment forwarding (bare names in environment: sections)
+#
+# Network topology:
+#   sentry: transit (uplink to internet via bridge) + enclave (down to bottle)
+#     Interface naming and default-route assignment are NOT controlled by compose:
+#       - eth0/eth1 ordering is Docker-engine-defined (sentry IP-discovers via RBRN_ENCLAVE_SENTRY_IP)
+#       - default route is assigned to the alphabetically-first attached network's gateway
+#         (compose 'priority:' keys empirically do NOT influence this on linux Docker
+#         engine 28.x or mac Docker Desktop 28.x — sentry replaces the default route
+#         with one via uplink at RBJp1, see rbjs_sentry.sh)
+#   pentacle: enclave only (static IP, routes through sentry)
+#   bottle: shares pentacle network namespace (network_mode: service:pentacle)
+#
+# Health chain: sentry healthy → pentacle starts → pentacle healthy → bottle starts (sessile profile)
+
+services:
+  sentry:
+    image: ${RBRD_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_SENTRY_HALLMARK}/image:${RBRN_SENTRY_HALLMARK}
+    container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-sentry
+    privileged: true
+    networks:
+      transit: {}
+      enclave:
+        ipv4_address: ${RBRN_ENCLAVE_SENTRY_IP}
+    ports:
+      - "${RBRN_ENTRY_PORT_WORKSTATION}:${RBRN_ENTRY_PORT_WORKSTATION}"
+    environment:
+      - RBRN_ENCLAVE_BASE_IP
+      - RBRN_ENCLAVE_NETMASK
+      - RBRN_ENCLAVE_SENTRY_IP
+      - RBRN_ENCLAVE_BOTTLE_IP
+      - RBRR_DNS_SERVER
+      - RBRN_ENTRY_MODE
+      - RBRN_ENTRY_PORT_WORKSTATION
+      - RBRN_ENTRY_PORT_ENCLAVE
+      - RBRN_UPLINK_DNS_MODE
+      - RBRN_UPLINK_PORT_MIN
+      - RBRN_UPLINK_ACCESS_MODE
+      - RBRN_UPLINK_ALLOWED_CIDRS
+      - RBRN_UPLINK_ALLOWED_DOMAINS
+      - RBJE_PROBE
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/rbjh_healthy"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
+
+  pentacle:
+    image: ${RBRD_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_SENTRY_HALLMARK}/image:${RBRN_SENTRY_HALLMARK}
+    container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-pentacle
+    privileged: true
+    networks:
+      enclave:
+        ipv4_address: ${RBRN_ENCLAVE_BOTTLE_IP}
+    environment:
+      - RBRN_ENCLAVE_SENTRY_IP
+    command: ["/opt/rbk/rbjp_pentacle.sh"]
+    depends_on:
+      sentry:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /tmp/rbjph_healthy"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
+
+  bottle:
+    image: ${RBRD_GCP_REGION}-docker.pkg.dev/${RBDC_DEPOT_PROJECT_ID}/${RBDC_GAR_REPOSITORY}/rbi_hm/${RBRN_BOTTLE_HALLMARK}/image:${RBRN_BOTTLE_HALLMARK}
+    container_name: ${RBRR_RUNTIME_PREFIX}${RBRN_MONIKER}-bottle
+    network_mode: "service:pentacle"
+    security_opt:
+      - label:disable
+    cap_drop:
+      - NET_RAW
+      - NET_ADMIN
+    environment:
+      - RBOB_HOST_UID
+      - RBOB_HOST_GID
+      - RBRV_USER
+    depends_on:
+      pentacle:
+        condition: service_healthy
+    profiles:
+      - sessile
+
+networks:
+  transit:
+    driver: bridge
+  enclave:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${RBRN_ENCLAVE_BASE_IP}/${RBRN_ENCLAVE_NETMASK}

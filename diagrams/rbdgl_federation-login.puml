@@ -1,0 +1,33 @@
+@startuml
+title Operator Login - federated, two-leg, curl-native\nSource: memo-20260527-operator-credential-models.md
+
+actor "Operator\n(human)" as OP
+participant "RBK Tool\n(workstation)" as TOOL
+participant "External IdP\n(OIDC issuer)" as IDP
+participant "Browser\n(any device)" as BR
+participant "Google STS\nsts.googleapis.com" as STS
+participant "Depot API\n(GCP)" as GCP
+
+== Leg 1 - IdP auth (outside Google, RFC 8628 device flow) ==
+OP -> TOOL : invoke (e.g. summon as director)
+TOOL -> IDP : POST device-authorization endpoint
+IDP --> TOOL : user_code, verification_uri,\ndevice_code, interval
+TOOL -> OP : print "go to <uri>, enter WXYZ-1234"
+OP -> BR : open verification_uri
+BR -> IDP : authorize (prove self to *own* IdP)
+note over IDP, BR : Google is **not** involved in Leg 1
+loop poll until authorized
+  TOOL -> IDP : poll token endpoint (device_code)
+end
+IDP --> TOOL : OIDC ID token (JWT)
+
+== Leg 2 - STS exchange (pure REST, RFC 8693) ==
+TOOL -> STS : POST /v1/token\ngrant_type=token-exchange\naudience=workforcePools/POOL/providers/PROVIDER\nsubject_token=<ID token>  (NO Authorization header)
+STS --> TOOL : short-lived Google access_token
+
+== Downstream - model-blind ==
+TOOL -> GCP : Authorization: Bearer <access_token>
+GCP --> TOOL : depot response
+note over TOOL, GCP : Session cap 15 min - 12 h (default 1 h);\nlong runs re-run Leg 2, never one long session
+
+@enduml
